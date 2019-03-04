@@ -484,7 +484,7 @@ size_t BRKeyCompactSignEthereum(const BRKey *key, void *compactSig, size_t sigLe
 // assigns pubKey recovered from compactSig to key and returns true on success
 int BRKeyRecoverPubKeyEthereum(BRKey *key, UInt256 md, const void *compactSig, size_t sigLen)
 {
-    int r = 0, compressed = 0, recid = 0;
+    int r = 0, recid = 0;
     uint8_t pubKey[65];
     size_t len = sizeof(pubKey);
     secp256k1_ecdsa_recoverable_signature s;
@@ -495,7 +495,7 @@ int BRKeyRecoverPubKeyEthereum(BRKey *key, UInt256 md, const void *compactSig, s
     assert(sigLen == 65);
     
     if (sigLen == 65) {
-        compressed = 0;
+        // Uncompressed
         recid = ((uint8_t *)compactSig)[64];
         if (secp256k1_ecdsa_recoverable_signature_parse_compact(_ctx, &s, (const uint8_t *)compactSig, recid) &&
             secp256k1_ecdsa_recover(_ctx, &pk, &s, md.u8) &&
