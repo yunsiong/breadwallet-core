@@ -34,6 +34,8 @@
 #include "BRWallet.h"
 #include "BRPeerManager.h"          // Unneeded, if we shadow some functions (connect,disconnect,scan)
 
+#include "support/BRFileService.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -159,9 +161,31 @@ BRWalletManagerGetWallet (BRWalletManager manager);
 extern BRPeerManager *
 BRWalletManagerGetPeerManager (BRWalletManager manager);
 
+/**
+ * Create a BRFileService suitable for persistent storage of Bitcoin data.  Use this
+ * to store sqllite3 data into Core.
+ *
+ * Use as: fileServiceSave (fs, <type>, <entity>)
+ * where type is one of: "transactions", "peers", "blocks"
+ * and where entity is: BRTransaction*, BRPeer*, BRMerkleBlock*
+ *
+ * Note: FOR TRANSITIONAL USE ONLY
+ *
+ * @param params
+ * @param baseStoragePath
+ * @param context
+ * @param handler
+ *
+ * @return
+ */
+extern BRFileService
+BRCreateFileServiceForWalletManager (const BRChainParams *params,
+                                     const char *baseStoragePath,
+                                     BRFileServiceContext context,
+                                     BRFileServiceErrorHandler handler);
+
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* BRWalletManager_h */

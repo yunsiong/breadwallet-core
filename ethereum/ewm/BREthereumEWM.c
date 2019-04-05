@@ -323,16 +323,11 @@ ewmFileServiceErrorHandler (BRFileServiceContext context,
 
 /// MARK: - Ethereum Wallet Manager
 
-static BREthereumEWM
-ewmCreateErrorHandler (BREthereumEWM ewm, int fileService, const char* reason) {
-    if (NULL != ewm) free (ewm);
-    if (fileService)
-        eth_log ("EWM", "on ewmCreate: FileService Error: %s", reason);
-    else
-        eth_log ("EWM", "on ewmCreate: Error: %s", reason);
-
-    return NULL;
-}
+static BRFileService
+ewmCreateFileServiceForEWM (BREthereumNetwork network,
+                            const char *storagePath,
+                           BRFileServiceContext context,
+                            BRFileServiceErrorHandler handler);
 
 static void
 ewmAssertRecovery (BREthereumEWM ewm);
@@ -386,51 +381,12 @@ ewmCreate (BREthereumNetwork network,
 
     // The file service.  Initialize {nodes, blocks, transactions and logs} from the FileService
 
-    ewm->fs = fileServiceCreate (storagePath, "eth", networkGetName(network),
-                                 ewm,
-                                 ewmFileServiceErrorHandler);
-    if (NULL == ewm->fs) return ewmCreateErrorHandler(ewm, 1, "create");
-
-    /// Transaction
-    if (1 != fileServiceDefineType (ewm->fs, fileServiceTypeTransactions, EWM_TRANSACTION_VERSION_1,
-                                    (BRFileServiceContext) ewm,
-                                    fileServiceTypeTransactionV1Identifier,
-                                    fileServiceTypeTransactionV1Reader,
-                                    fileServiceTypeTransactionV1Writer) ||
-        1 != fileServiceDefineCurrentVersion (ewm->fs, fileServiceTypeTransactions,
-                                              EWM_TRANSACTION_VERSION_1))
-        return ewmCreateErrorHandler(ewm, 1, fileServiceTypeTransactions);
-
-    /// Log
-    if (1 != fileServiceDefineType (ewm->fs, fileServiceTypeLogs, EWM_LOG_VERSION_1,
-                                    (BRFileServiceContext) ewm,
-                                    fileServiceTypeLogV1Identifier,
-                                    fileServiceTypeLogV1Reader,
-                                    fileServiceTypeLogV1Writer) ||
-        1 != fileServiceDefineCurrentVersion (ewm->fs, fileServiceTypeLogs,
-                                              EWM_LOG_VERSION_1))
-        return ewmCreateErrorHandler(ewm, 1, fileServiceTypeLogs);
-
-    /// Peer
-    if (1 != fileServiceDefineType (ewm->fs, fileServiceTypeNodes, EWM_NODE_VERSION_1,
-                                    (BRFileServiceContext) ewm,
-                                    fileServiceTypeNodeV1Identifier,
-                                    fileServiceTypeNodeV1Reader,
-                                    fileServiceTypeNodeV1Writer) ||
-        1 != fileServiceDefineCurrentVersion (ewm->fs, fileServiceTypeNodes,
-                                              EWM_NODE_VERSION_1))
-        return ewmCreateErrorHandler(ewm, 1, fileServiceTypeNodes);
-
-
-   /// Block
-    if (1 != fileServiceDefineType (ewm->fs, fileServiceTypeBlocks, EWM_BLOCK_VERSION_1,
-                                    (BRFileServiceContext) ewm,
-                                    fileServiceTypeBlockV1Identifier,
-                                    fileServiceTypeBlockV1Reader,
-                                    fileServiceTypeBlockV1Writer) ||
-        1 != fileServiceDefineCurrentVersion (ewm->fs, fileServiceTypeBlocks,
-                                              EWM_BLOCK_VERSION_1))
-        return ewmCreateErrorHandler(ewm, 1, fileServiceTypeBlocks);
+    ewm->fs = ewmCreateFileServiceForEWM (network, storagePath, ewm, ewmFileServiceErrorHandler);
+    if (NULL == ewm->fs) {
+        free (ewm);
+        eth_log ("EWM", "FileService: Error: %s", "create");
+        return NULL;
+    }
 
     // Load all the persistent entities
     BRSetOf(BREthereumTransaction) transactions = initialTransactionsLoad(ewm);
@@ -2400,11 +2356,6 @@ ewmCreateGas (uint64_t value) {
     return gasCreate(value);
 }
 
-
-
-
-
-
 extern void
 ewmTransferDelete (BREthereumEWM ewm,
                    BREthereumTransfer transfer) {
@@ -2430,4 +2381,71 @@ feeBasisCreate (BREthereumGas limit,
         { .gas = { limit, price }}
     };
 }
+
+// MARK: File Service
+
+static BRFileService
+ewmCreateErrorHandler (BRFileService fs, int fileService, const char* reason) {
+    if (NULL != fs) fileServiceRelease (fs);
+    eth_log ("EWM", "on ewmCreate: %sError: %s",
+             (fileService ? "BRFileService " : ""),
+             reason);
+    return NULL;
+}
+
+static BRFileService
+ewmCreateFileServiceForEWM (BREthereumNetwork network,
+                            const char *storagePath,
+                            BRFileServiceContext context,
+                            BRFileServiceErrorHandler handler) {
+
+    BRFileService fs = fileServiceCreate (storagePath, "eth", networkGetName(network),
+                                          context,
+                                          handler);
+    if (NULL == fs) return ewmCreateErrorHandler (NULL, 1, "create");
+
+    /// Transaction
+    if (1 != fileServiceDefineType (fs, fileServiceTypeTransactions, EWM_TRANSACTION_VERSION_1,
+                                    (BRFileServiceContext) context,
+                                    fileServiceTypeTransactionV1Identifier,
+                                    fileServiceTypeTransactionV1Reader,
+                                    fileServiceTypeTransactionV1Writer) ||
+        1 != fileServiceDefineCurrentVersion (fs, fileServiceTypeTransactions,
+                                              EWM_TRANSACTION_VERSION_1))
+        return ewmCreateErrorHandler(fs, 1, fileServiceTypeTransactions);
+
+    /// Log
+    if (1 != fileServiceDefineType (fs, fileServiceTypeLogs, EWM_LOG_VERSION_1,
+                                    (BRFileServiceContext) context,
+                                    fileServiceTypeLogV1Identifier,
+                                    fileServiceTypeLogV1Reader,
+                                    fileServiceTypeLogV1Writer) ||
+        1 != fileServiceDefineCurrentVersion (fs, fileServiceTypeLogs,
+                                              EWM_LOG_VERSION_1))
+        return ewmCreateErrorHandler(fs, 1, fileServiceTypeLogs);
+
+    /// Peer
+    if (1 != fileServiceDefineType (fs, fileServiceTypeNodes, EWM_NODE_VERSION_1,
+                                    (BRFileServiceContext) context,
+                                    fileServiceTypeNodeV1Identifier,
+                                    fileServiceTypeNodeV1Reader,
+                                    fileServiceTypeNodeV1Writer) ||
+        1 != fileServiceDefineCurrentVersion (fs, fileServiceTypeNodes,
+                                              EWM_NODE_VERSION_1))
+        return ewmCreateErrorHandler(fs, 1, fileServiceTypeNodes);
+
+
+    /// Block
+    if (1 != fileServiceDefineType (fs, fileServiceTypeBlocks, EWM_BLOCK_VERSION_1,
+                                    (BRFileServiceContext) context,
+                                    fileServiceTypeBlockV1Identifier,
+                                    fileServiceTypeBlockV1Reader,
+                                    fileServiceTypeBlockV1Writer) ||
+        1 != fileServiceDefineCurrentVersion (fs, fileServiceTypeBlocks,
+                                              EWM_BLOCK_VERSION_1))
+        return ewmCreateErrorHandler(fs, 1, fileServiceTypeBlocks);
+
+    return fs;
+}
+
 
