@@ -382,20 +382,20 @@ public class BlockChainDB {
         static internal func asTransfer (json: JSON) -> Model.Transfer? {
             guard let id = json.asString(name: "transfer_id"),
                 let bid = json.asString(name: "blockchain_id"),
-                let acknowledgements = json.asUInt64(name: "acknowledgements"),
                 let index = json.asUInt64(name: "index"),
                 let amount = json.asDict(name: "amount").map ({ JSON (dict: $0) }),
                 let amountValue = amount.asString (name: "amount"),
                 let amountCurrency = amount.asString (name: "currency_id")
                 else { return nil }
 
+            let acks   = json.asUInt64(name: "acknowledgements") ?? 0
             let source = json.asString(name: "from_address")
             let target = json.asString(name: "to_address")
-            let tid = json.asString(name: "transaction_id")
+            let tid    = json.asString(name: "transaction_id")
 
             return (id: id, source: source, target: target,
                     amountValue: amountValue, amountCurrency: amountCurrency,
-                    acknowledgements: acknowledgements, index: index,
+                    acknowledgements: acks, index: index,
                     transactionId: tid, blockchainId: bid)
         }
 
@@ -413,7 +413,7 @@ public class BlockChainDB {
             status: String,
             size: UInt64,
             timestamp: Date?,
-            firstSeen: Date,
+            firstSeen: Date?,
             raw: Data?,
             transfers: [Transfer],
             acknowledgements: UInt64
@@ -425,11 +425,11 @@ public class BlockChainDB {
                 let hash       = json.asString (name: "hash"),
                 let identifier = json.asString (name: "identifier"),
                 let status     = json.asString (name: "status"),
-                let size       = json.asUInt64 (name: "size"),
-                let firstSeen  = json.asDate   (name: "first_seen"),
-                let acks       = json.asUInt64 (name: "acknowledgements")
+                let size       = json.asUInt64 (name: "size")
                 else { return nil }
 
+            let acks          = json.asUInt64 (name: "acknowledgements") ?? 0
+            let firstSeen     = json.asDate   (name: "first_seen")
             let blockHash     = json.asString (name: "block_hash")
             let blockHeight   = json.asUInt64 (name: "block_height")
             let index         = json.asUInt64 (name: "index")
@@ -811,9 +811,6 @@ public class BlockChainDB {
 
             let semaphore = DispatchSemaphore (value: 0)
 
-//            var moreResults = false
-            var begBlockNumber = begBlockNumber
-
             var error: QueryError? = nil
             var results = [Model.Transaction]()
 
@@ -821,23 +818,17 @@ public class BlockChainDB {
                 queryVals[1] = begHeight.description
                 queryVals[2] = min (begHeight + 5000, endBlockNumber).description
 
-                //                moreResults = false
-
                 self.bdbMakeRequest (path: "transactions", query: zip (queryKeys, queryVals)) {
                     (more: Bool, res: Result<[JSON], QueryError>) in
-                    // Flag if `more`
-//                    moreResults = more
+
+                    // The "/transactions" endpoint promises to return all the transactions in the
+                    // 5000 block range.  There should never be 'more' results
+                    precondition (!more)
 
                     // Append `transactions` with the resulting transactions.
                     results += try! res
                         .flatMap { BlockChainDB.getManyExpected(data: $0, transform: Model.asTransaction) }
                         .recover { error = $0; return [] }.get()
-
-                    if more && nil == error {
-                        begBlockNumber = results.reduce(0) {
-                            max ($0, ($1.blockHeight ?? 0))
-                        }
-                    }
 
                     semaphore.signal()
                 }
