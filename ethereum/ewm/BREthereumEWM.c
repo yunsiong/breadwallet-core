@@ -1555,9 +1555,16 @@ ewmHandleBalance (BREthereumEWM ewm,
                                ? ewmGetWallet(ewm)
                                : ewmGetWalletHoldingToken(ewm, amountGetToken (amount)));
     
+    BREthereumAmount zeroBalance = (AMOUNT_ETHER == amountGetType(amount)
+                                    ? amountCreateEther(etherCreate(UINT256_ZERO))
+                                    : amountCreateToken(createTokenQuantity (walletGetToken(wallet), UINT256_ZERO)));
+    
     int amountTypeMismatch;
     
-    if (ETHEREUM_COMPARISON_EQ != amountCompare(amount, walletGetBalance(wallet), &amountTypeMismatch)) {
+    if (ETHEREUM_COMPARISON_EQ != amountCompare(amount, walletGetBalance(wallet), &amountTypeMismatch) ||
+        // Since the default wallet balance is 0, WALLET_EVENT_BALANCE_UPDATED event should
+        // still be sent when the incoming amount is 0 so those wallets receive the proper events
+        (ETHEREUM_COMPARISON_EQ == amountCompare(zeroBalance, amount, &amountTypeMismatch))) {
         walletSetBalance(wallet, amount);
         ewmSignalWalletEvent (ewm,
                               wallet,
@@ -1565,6 +1572,7 @@ ewmHandleBalance (BREthereumEWM ewm,
                               SUCCESS,
                               NULL);
     }
+    
     pthread_mutex_unlock(&ewm->lock);
 }
 
