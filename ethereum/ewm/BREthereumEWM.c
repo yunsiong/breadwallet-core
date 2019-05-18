@@ -1070,7 +1070,6 @@ ewmInsertWallet (BREthereumEWM ewm,
     pthread_mutex_lock(&ewm->lock);
     array_add (ewm->wallets, wallet);
     ewmSignalWalletEvent (ewm, wallet, WALLET_EVENT_CREATED, SUCCESS, NULL);
-    ewmSignalWalletEvent (ewm, wallet, WALLET_EVENT_BALANCE_UPDATED, SUCCESS, NULL);
     pthread_mutex_unlock(&ewm->lock);
 }
 
