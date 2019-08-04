@@ -47,6 +47,21 @@ JNIEXPORT jlong JNICALL Java_com_breadwallet_core_BRCoreChainParams_createJniMai
 JNIEXPORT jlong JNICALL Java_com_breadwallet_core_BRCoreChainParams_createJniTestnetBcashChainParams
   (JNIEnv *, jclass);
 
+/*
+ * Class:     com_breadwallet_core_BRCoreChainParams
+ * Method:    createJniMainnetrAcashChainParams
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_breadwallet_core_BRCoreChainParams_createJniMainnetAcashChainParams
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_breadwallet_core_BRCoreChainParams
+ * Method:    createJniTestnetAcashChainParams
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_breadwallet_core_BRCoreChainParams_createJniTestnetAcashChainParams
+  (JNIEnv *, jclass);
 #ifdef __cplusplus
 }
 #endif

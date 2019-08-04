@@ -9,6 +9,7 @@
 #include "BRCoreJni.h"
 #include "bitcoin/BRChainParams.h"
 #include "bcash/BRBCashParams.h"
+#include "acash/BRACashParams.h"
 #include "com_breadwallet_core_BRCoreChainParams.h"
 
 /*
@@ -68,5 +69,30 @@ JNIEXPORT jlong JNICALL Java_com_breadwallet_core_BRCoreChainParams_createJniTes
         (JNIEnv *env, jclass thisClass) {
     BRChainParams *result = (BRChainParams *) calloc(1, sizeof(BRChainParams));
     memcpy(result, BRBCashTestNetParams, sizeof(BRChainParams));
+    return (jlong) result;
+}
+
+
+/*
+ * Class:     com_breadwallet_core_BRCoreChainParams
+ * Method:    createJniMainnetAcashChainParams
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_breadwallet_core_BRCoreChainParams_createJniMainnetAcashChainParams
+        (JNIEnv *env, jclass thisClass) {
+    BRChainParams *result = (BRChainParams *) calloc (1, sizeof (BRChainParams));
+    memcpy (result, BRACashParams, sizeof (BRChainParams));
+    return (jlong) result;
+}
+
+/*
+ * Class:     com_breadwallet_core_BRCoreChainParams
+ * Method:    createJniTestnetAcashChainParams
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_breadwallet_core_BRCoreChainParams_createJniTestnetAcashChainParams
+        (JNIEnv *env, jclass thisClass) {
+    BRChainParams *result = (BRChainParams *) calloc(1, sizeof(BRChainParams));
+    memcpy(result, BRACashTestNetParams, sizeof(BRChainParams));
     return (jlong) result;
 }
