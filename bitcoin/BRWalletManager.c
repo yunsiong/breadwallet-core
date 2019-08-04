@@ -17,6 +17,7 @@
 #include "BRBase58.h"
 #include "BRChainParams.h"
 #include "bcash/BRBCashParams.h"
+#include "acash/BRACashParams.h"
 
 #include "../support/BRFileService.h"
 
