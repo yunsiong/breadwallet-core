@@ -39,10 +39,12 @@ static const char *
 getNetworkName (const BRChainParams *params) {
     if (params->magicNumber == BRMainNetParams->magicNumber ||
         params->magicNumber == BRBCashParams->magicNumber)
+        params->magicNumber == BRACashParams->magicNumber)
         return "mainnet";
 
     if (params->magicNumber == BRTestNetParams->magicNumber ||
         params->magicNumber == BRBCashTestNetParams->magicNumber)
+        params->magicNumber == BRACashTestNetParams->magicNumber)
         return "testnet";
 
     return NULL;
@@ -58,6 +60,9 @@ getCurrencyName (const BRChainParams *params) {
         params->magicNumber == BRBCashTestNetParams->magicNumber)
         return "bch";
 
+    if (params->magicNumber == BRACashParams->magicNumber ||
+        params->magicNumber == BRACashTestNetParams->magicNumber)
+        return "ach";
     return NULL;
 }
 
@@ -71,6 +76,9 @@ getForkId (const BRChainParams *params) {
         params->magicNumber == BRBCashTestNetParams->magicNumber)
         return WALLET_FORKID_BITCASH;
 
+    if (params->magicNumber == BRACashParams->magicNumber ||
+        params->magicNumber == BRACashTestNetParams->magicNumber)
+        return WALLET_FORKID_BITCOIN;
     return (BRWalletForkId) -1;
 }
 
