@@ -119,6 +119,12 @@ static const BRChainParams BRMainNetParamsRecord = {
     8333,                  // standardPort
     0xd9b4bef9,            // magicNumber
     SERVICES_NODE_WITNESS, // services
+    0,                     // publicKey
+    128,                   // secretKey
+    5,                     // scriptKey
+    (21000000LL*SATOSHIS), //maxMoney;
+    0x1d00ffff,            //max_POW;
+    (14*24*60*60),         //targetTimespan;
     BRMainNetVerifyDifficulty,
     BRMainNetCheckpoints,
     sizeof(BRMainNetCheckpoints)/sizeof(*BRMainNetCheckpoints)
@@ -130,6 +136,12 @@ static const BRChainParams BRTestNetParamsRecord = {
     18333,                 // standardPort
     0x0709110b,            // magicNumber
     SERVICES_NODE_WITNESS, // services
+    111,                   // publicKeyTest
+    239,                   // secretKeyTest
+    196,                   // scriptKeyTest
+    (21000000LL*SATOSHIS), //maxMoney;
+    0x1d00ffff,            //max_POW;
+    (14*24*60*60),         //targetTimespan;
     BRTestNetVerifyDifficulty,
     BRTestNetCheckpoints,
     sizeof(BRTestNetCheckpoints)/sizeof(*BRTestNetCheckpoints)

@@ -22,42 +22,17 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
-#ifndef BRChainParams_h
-#define BRChainParams_h
+#ifndef BRACashParams_h
+#define BRACashParams_h
 
-#include "BRMerkleBlock.h"
-#include "BRSet.h"
-#include "BRPeer.h"
-#include <assert.h>
+#include "bitcoin/BRChainParams.h"
 
-typedef struct {
-    uint32_t height;
-    UInt256 hash;
-    uint32_t timestamp;
-    uint32_t target;
-} BRCheckPoint;
+extern const BRChainParams *BRACashParams;
+extern const BRChainParams *BRACashTestNetParams;
 
-typedef struct {
-    const char * const *dnsSeeds; // NULL terminated array of dns seeds
-    uint16_t standardPort;
-    uint32_t magicNumber;
-    uint64_t services;
-    uint8_t publicKey;
-    uint8_t secretKey;
-    uint8_t scriptKey;
-    int64_t maxMoney;
-    uint64_t max_POW;
-    int64_t targetTimespan;
-    int (*verifyDifficulty)(const BRMerkleBlock *block, const BRSet *blockSet); // blockSet must have last 2016 blocks
-    const BRCheckPoint *checkpoints;
-    size_t checkpointsCount;
-} BRChainParams;
-
-extern const BRChainParams *BRMainNetParams;
-extern const BRChainParams *BRTestNetParams;
-
-static inline const BRChainParams *BRChainParamsGetBitcoin (int mainnet) {
-    return mainnet ? BRMainNetParams : BRTestNetParams;
+static inline const BRChainParams *BRChainParamsGetACash (int mainnet) {
+    return mainnet ? BRACashParams : BRACashTestNetParams;
 }
 
 #endif // BRChainParams_h
+

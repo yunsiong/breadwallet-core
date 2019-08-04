@@ -167,6 +167,12 @@ static const BRChainParams BRBCashParamsRecord = {
     8333,                // standardPort
     0xe8f3e1e3,          // magicNumber
     SERVICES_NODE_BCASH, // services
+    0,                     // publicKey
+    128,                   // secretKey
+    5,                     // scriptKey
+    (21000000LL*SATOSHIS), //maxMoney;
+    0x1d00ffff,            //max_POW;
+    (14*24*60*60),         //targetTimespan;
     BRBCashVerifyDifficulty,
     BRBCashCheckpoints,
     sizeof(BRBCashCheckpoints)/sizeof(*BRBCashCheckpoints),
@@ -178,6 +184,12 @@ static const BRChainParams BRBCashTestNetParamsRecord = {
     18333,               // standardPort
     0xf4f3e5f4,          // magicNumber
     SERVICES_NODE_BCASH, // services
+    111,                   // publicKeyTest
+    239,                   // secretKeyTest
+    196,                   // scriptKeyTest
+    (21000000LL*SATOSHIS), //maxMoney;
+    0x1d00ffff,            //max_POW;
+    (14*24*60*60),         //targetTimespan;
     BRBCashTestNetVerifyDifficulty,
     BRBCashTestNetCheckpoints,
     sizeof(BRBCashTestNetCheckpoints)/sizeof(*BRBCashTestNetCheckpoints)

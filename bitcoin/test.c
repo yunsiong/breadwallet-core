@@ -38,6 +38,7 @@
 #include "BRPeerManager.h"
 #include "BRChainParams.h"
 #include "bcash/BRBCashParams.h"
+#include "acash/BRACashParams.h"
 #include "bcash/BRBCashAddr.h"
 #include "BRPaymentProtocol.h"
 #include "BRInt.h"
