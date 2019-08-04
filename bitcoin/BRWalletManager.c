@@ -39,12 +39,12 @@ static void _BRWalletManagerThreadCleanup (void *info);
 static const char *
 getNetworkName (const BRChainParams *params) {
     if (params->magicNumber == BRMainNetParams->magicNumber ||
-        params->magicNumber == BRBCashParams->magicNumber)
+        params->magicNumber == BRBCashParams->magicNumber ||
         params->magicNumber == BRACashParams->magicNumber)
         return "mainnet";
 
     if (params->magicNumber == BRTestNetParams->magicNumber ||
-        params->magicNumber == BRBCashTestNetParams->magicNumber)
+        params->magicNumber == BRBCashTestNetParams->magicNumber ||
         params->magicNumber == BRACashTestNetParams->magicNumber)
         return "testnet";
 
