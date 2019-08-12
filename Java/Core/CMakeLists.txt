@@ -286,6 +286,7 @@ include_directories(src/main/cpp/core/)
 include_directories(src/main/cpp/core/support)
 include_directories(src/main/cpp/core/bitcoin)
 include_directories(src/main/cpp/core/bcash)
+include_directories(src/main/cpp/core/acash)
 include_directories(src/main/cpp/core/ethereum/)
 include_directories(src/main/cpp/core/secp256k1/)
 
